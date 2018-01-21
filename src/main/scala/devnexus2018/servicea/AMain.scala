@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.pattern.ask
 import akka.http.scaladsl.server.PathMatchers.IntNumber
 import akka.http.scaladsl.server.Route
@@ -12,7 +13,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.io.StdIn
 
 object AMain {
@@ -30,9 +31,9 @@ object AMain {
       } else {
         args(0).toInt match {
           case 1 => Some(system.actorOf(Try1Actor.props, "try1"))
-          case 2 => Some(system.actorOf(Try1Actor.props, "try2"))
-          case 3 => Some(system.actorOf(Try1Actor.props, "try3"))
-          case 4 => Some(system.actorOf(Try1Actor.props, "try4"))
+          case 2 => Some(system.actorOf(Try2Actor.props, "try2"))
+          case 3 => Some(system.actorOf(Try3Actor.props, "try3"))
+          case 4 => Some(system.actorOf(Try4Actor.props, "try4"))
           case _ =>
             println("Parameter must be between 1-4.")
             None
@@ -64,6 +65,13 @@ object AMain {
       get {
         val result = (actor ? id).mapTo[String]
         complete(result)
+      }
+    } ~
+    pathPrefix("servicea-stream" / IntNumber) { id =>
+      get {
+        val promise = Promise[HttpResponse]()
+        // FIXME : add StreamActor  
+        complete(promise.future)
       }
     }
   }

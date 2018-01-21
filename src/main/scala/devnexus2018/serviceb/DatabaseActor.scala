@@ -10,7 +10,9 @@ class DatabaseActor extends Actor with ActorLogging {
         Thread.sleep(id)
         totalTime += id
       }
-      sender ! s"TOTAL DB TIME: $totalTime"
+      val message = s"TOTAL DB TIME: $totalTime"
+      log.info(s"Service B: $message")
+      sender ! message
   }
 }
 
