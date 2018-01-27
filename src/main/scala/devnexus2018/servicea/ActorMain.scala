@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.pattern.ask
 import akka.http.scaladsl.server.PathMatchers.IntNumber
 import akka.http.scaladsl.server.Route
@@ -16,7 +15,7 @@ import akka.util.Timeout
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.io.StdIn
 
-object AMain {
+object ActorMain {
   implicit val system: ActorSystem = ActorSystem("ServiceA")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   // Needed for the Future and its methods flatMap/onComplete in the end
@@ -47,7 +46,7 @@ object AMain {
     if (backendActor.isDefined) {
       val serverBindingFuture: Future[ServerBinding] = Http().bindAndHandle(createRoute(backendActor.get), "localhost", 8080)
 
-      println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+      println(s"Actor server online at http://localhost:8080/\nPress RETURN to stop...")
       StdIn.readLine()
       serverBindingFuture
         .flatMap(_.unbind())
@@ -65,13 +64,6 @@ object AMain {
       get {
         val result = (actor ? id).mapTo[String]
         complete(result)
-      }
-    } ~
-    pathPrefix("servicea-stream" / IntNumber) { id =>
-      get {
-        val promise = Promise[HttpResponse]()
-        // FIXME : add StreamActor  
-        complete(promise.future)
       }
     }
   }
