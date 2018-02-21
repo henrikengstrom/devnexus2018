@@ -1,0 +1,7 @@
+implicit val system = ActorSystem("StreamsTest")
+implicit val materializer = ActorMaterializer()
+val source = Source(1 to 10000)
+val flow = Flow[Int].filter(_ % 2 == 0).map(_.toString())
+val sink = Sink.foreach[String](n => s"Even number is: $n")
+val runnable = source.via(flow).to(sink)
+runnable.run()
